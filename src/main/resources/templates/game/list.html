@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>New Two Players Game</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"
+          th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}">
+
+    <script src="/webjars/jquery/1.11.1/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
+
+</head>
+<body>
+<div class="container-fluid" style="margin-top: 20px">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="panel panel-primary" style="height: 600px;">
+
+                <div class="panel-heading">
+                    <div class="text-center">
+                        <h1>Tic Tac Toe!</h1>
+                    </div>
+                </div>
+                <div class="panel-body" >
+
+                    <div class="col-md-10 col-md-offset-1" >
+                        <div class="text-center">
+                            <div>
+                                <h1>List of Games</h1>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive" th:if="${not #lists.isEmpty(games)}">
+                            <table class="table table-hover ">
+                                <thead class="thead-inverse">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Player 1</th>
+                                    <th>Player 2</th>
+                                    <th>Winner</th>
+
+                                </tr>
+                                </thead>
+                                <tr th:remove="all">
+                                    <td>123</td>
+                                    <td>Jack</td>
+                                    <td>Andy</td>
+                                    <td>Jack</td>
+
+                                </tr>
+                                <tr th:remove="all">
+                                    <td>1243</td>
+                                    <td>Jack</td>
+                                    <td>Andy</td>
+                                    <td>None</td>
+                                </tr>
+                                <tr th:each="game : ${games}">
+                                    <!--/*@thymesVar id="game" type="pl.wojek11530.tictactoe.domain.Game"*/-->
+                                    <td th:text="${game.id}">123</td>
+                                    <td th:text="${game.getPlayer1().name}">Some name</td>
+                                    <td th:text="${game.getPlayer2().name}">Some name</td>
+                                    <td th:text="${game.getWinner()!= null} ? ${game.getWinner().name} : 'None'">Some name</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="col-md-5">
+                            <a class="btn btn-default btn-lg btn-block" href="#"
+                               th:href="@{'/tictactoe/'}"
+                               role="button">Return</a>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

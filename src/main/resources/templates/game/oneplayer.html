@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>New One Game</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"
+          th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}">
+
+    <script src="/webjars/jquery/1.11.1/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
+
+</head>
+<body>
+<div class="container-fluid" style="margin-top: 20px">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="panel panel-primary" style="height: 600px;">
+
+                <div class="panel-heading">
+                    <div class="text-center">
+                        <h1>Tic Tac Toe!</h1>
+                    </div>
+                </div>
+                <div class="panel-body" >
+
+                    <div class="col-md-10 col-md-offset-1" >
+                        <div class="text-center">
+                            <div>
+                                <h1>New Game for One Player</h1>
+                            </div>
+                        </div>
+                        <div>
+
+                            <div>
+                                <div style="margin-top: 70px">
+                                    <form th:object="${game}" th:action="@{/game/}" method="post" >
+                                        <div class="col-md-6 form-group">
+
+                                            <div class="row">
+                                                <label>Player 1:</label>
+
+
+                                                <select class="form-control" th:field="*{player1}">
+                                                    <option th:each="player : ${playerList}"
+                                                            th:value="${player.id}"
+                                                            th:text="${player.name}">Name Of Player</option>
+                                                </select>
+
+
+
+                                            </div>
+
+                                            <div class="row" style="margin-top: 10px">
+                                                <label>Player 2:</label>
+
+
+                                                <select class="form-control" th:field="*{player2}">
+                                                    <option th:each="player : ${playerList}"
+                                                            th:value="${player.id}"
+                                                            th:text="${player.name}">Name Of Player</option>
+                                                </select>
+
+
+
+                                            </div>
+
+                                        </div >
+                                        <div class="text-center">
+                                            <div class="col-md-6" style="margin-top: 55px">
+                                                <button type="submit" class="btn btn-primary btn btn-lg">Start a Game!</button>
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
+
+                            </div>
+
+
+
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-10 col-md-offset-1" style="margin-top: 10px" >
+                        <div class="col-md-6 col-md-offset-3">
+                            <a class="btn btn-default btn btn-block" href="#"
+                               th:href="@{'/tictactoe/game/new'}"
+                               role="button">Return</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+.no-gutter {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+.no-gutter > [class*="col-"] {
+    padding-right: 0;
+    padding-left: 0;
+}
+
+.btn-sq-lg {
+    width: 100px !important;
+    height: 100px; !important;
+    line-height: 75px;
+
+
+
+}
+
+.col-center-block {
+    float: none;
+    display: block;
+    margin: 0 auto;
+    /* margin-left: auto; margin-right: auto; */
+}
