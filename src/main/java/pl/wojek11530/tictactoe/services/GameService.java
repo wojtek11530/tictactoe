@@ -37,4 +37,8 @@ public interface GameService {
     void deleteById(Long gameId);
 
     Set<Game> getGameList();
+
+    String playNextAIMove(Long gameId);
+
+    String determineNextPhaseOfGame(Long gameId);
 }

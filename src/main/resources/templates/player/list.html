@@ -37,6 +37,11 @@
                             </div>
                         </div>
 
+                        <div class="table-responsive" th:if="${ #lists.isEmpty(players)}">
+
+                            <p>There is no players. You've got to add them.</p>
+                        </div>
+
                         <div class="table-responsive" th:if="${not #lists.isEmpty(players)}">
                             <table class="table table-hover ">
                                 <thead class="thead-inverse">
@@ -67,12 +72,14 @@
                                 </tr>
                                 <tr th:each="player : ${players}">
                                     <!--/*@thymesVar id="player" type="pl.wojek11530.tictactoe.domain.Player"*/-->
-                                    <td th:text="${player.id}">123</td>
-                                    <td th:text="${player.name}">Some name</td>
-                                    <td th:text="${player.numberOfGames}">15</td>
-                                    <td th:text="${player.numberOfWins}">5</td>
-                                    <td th:text="${player.numberOfDraws}">5</td>
-                                    <td th:text="${player.numberOfDefeats}">5</td>
+                                    <div th:if="${player.isReal()}">
+                                        <td th:text="${player.id}">123</td>
+                                        <td th:text="${player.name}">Some name</td>
+                                        <td th:text="${player.numberOfGames}">15</td>
+                                        <td th:text="${player.numberOfWins}">5</td>
+                                        <td th:text="${player.numberOfDraws}">5</td>
+                                        <td th:text="${player.numberOfDefeats}">5</td>
+                                    </div>
                                 </tr>
                             </table>
                         </div>

@@ -40,11 +40,11 @@
 
                             <div>
                                 <div style="margin-top: 70px">
-                                    <form th:object="${game}" th:action="@{/game/}" method="post" >
+                                    <form th:object="${game}" th:action="@{/gameForOne/}" method="post" >
                                         <div class="col-md-6 form-group">
 
-                                            <div class="row">
-                                                <label>Player 1:</label>
+
+                                                <label>Player:</label>
 
 
                                                 <select class="form-control" th:field="*{player1}">
@@ -52,28 +52,16 @@
                                                             th:value="${player.id}"
                                                             th:text="${player.name}">Name Of Player</option>
                                                 </select>
-
-
-
-                                            </div>
-
-                                            <div class="row" style="margin-top: 10px">
-                                                <label>Player 2:</label>
-
-
-                                                <select class="form-control" th:field="*{player2}">
-                                                    <option th:each="player : ${playerList}"
-                                                            th:value="${player.id}"
-                                                            th:text="${player.name}">Name Of Player</option>
+                                                <select class="form-control" th:field="*{player1.signOfPlayer}">
+                                                    <option th:each="sign : ${allSigns}"
+                                                            th:value="${sign}"
+                                                            th:text="${sign}">Sign</option>
                                                 </select>
 
-
-
-                                            </div>
-
                                         </div >
-                                        <div class="text-center">
-                                            <div class="col-md-6" style="margin-top: 55px">
+                                        <div class="col-md-6 vertical-center" style="margin-top: 33px">
+
+                                            <div class="text-center ">
                                                 <button type="submit" class="btn btn-primary btn btn-lg">Start a Game!</button>
                                             </div>
                                         </div>

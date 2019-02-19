@@ -8,13 +8,13 @@ import pl.wojek11530.tictactoe.converters.GameCommandToGame;
 import pl.wojek11530.tictactoe.converters.GameToGameCommand;
 import pl.wojek11530.tictactoe.domain.Game;
 import pl.wojek11530.tictactoe.domain.Player;
-import pl.wojek11530.tictactoe.domain.SignOfPlayer;
 import pl.wojek11530.tictactoe.exceptions.NotFoundException;
 import pl.wojek11530.tictactoe.repositories.GameRepository;
 import pl.wojek11530.tictactoe.repositories.PlayerRepository;
 
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 
 @Slf4j
@@ -25,6 +25,8 @@ public class GameServiceImpl implements GameService {
     private final GameCommandToGame gameCommandToGame;
     private final GameToGameCommand gameToGameCommand;
     private final PlayerRepository playerRepository;
+
+    private final Random r = new Random();
 
 
     public GameServiceImpl(GameRepository gameRepository, GameCommandToGame gameCommandToGame, GameToGameCommand gameToGameCommand, PlayerRepository playerRepository) {
@@ -45,14 +47,14 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public boolean putSign(Long id, int row, int col) {
+    public boolean putSign(Long id, int x, int y) {
         Game game = findById(id);
 
-        if(!game.getGameBoard()[row - 1][col - 1].equals(Game.DEFAULT_BOARD_CHARACTER)) {
+        if(!game.getGameBoard()[x - 1][y - 1].equals(Game.DEFAULT_BOARD_CHARACTER)) {
             return false;
         }
         else{
-            findById(id).getGameBoard()[row-1][col-1] =  findById(id).getCurrentPlayer().getSignOfPlayer().getSign();
+            findById(id).getGameBoard()[x-1][y-1] =  findById(id).getCurrentPlayer().getSignOfPlayer().getSign();
             gameRepository.save(game);
         }
 
@@ -62,11 +64,6 @@ public class GameServiceImpl implements GameService {
     @Override
     @Transactional
     public GameCommand saveGameCommand(GameCommand command) {
-
-        command.getPlayer1().setSignOfPlayer(SignOfPlayer.CROSS);
-        command.getPlayer2().setSignOfPlayer(SignOfPlayer.CIRCLE);
-
-
         Game detachedGame = gameCommandToGame.convert(command);
 
         Game savedGame = gameRepository.save(detachedGame);
@@ -125,14 +122,10 @@ public class GameServiceImpl implements GameService {
         game.getPlayer2().setNumberOfDraws(game.getPlayer2().getNumberOfDraws()+1);
         game.getPlayer2().setNumberOfGames(game.getPlayer2().getNumberOfGames()+1);
 
-
-
         gameRepository.save(game);
-
 
         playerRepository.save(game.getPlayer1());
         playerRepository.save(game.getPlayer2());
-
 
         return true;
     }
@@ -183,7 +176,7 @@ public class GameServiceImpl implements GameService {
             String [] row = new String[gameBoard.length];
 
             for (int j=0; j<gameBoard[i].length; j++){
-                row[j] = gameBoard[i][j];
+                row[j] = gameBoard[j][i];
             }
 
             boolean hasTheRowTheSameSigns = true;
@@ -268,12 +261,7 @@ public class GameServiceImpl implements GameService {
         }
     }
 
-    @Override
-    public String playNextMove(Long gameId, int row, int col) {
-        if (putSign(gameId, row, col)) {
-            changeCurrentPlayer(gameId);
-        }
-
+    public String determineNextPhaseOfGame(Long gameId) {
         if (checkIfTHereIsAWInner(gameId)){
             return "redirect:/tictactoe/game/" + gameId + "/win";
         }
@@ -281,8 +269,30 @@ public class GameServiceImpl implements GameService {
             return "redirect:/tictactoe/game/" + gameId + "/draw";
         }
         else {
-            return "game/play";
+            return "redirect:/tictactoe/game/" + gameId + "/play";
         }
+    }
+
+    @Override
+    public String playNextMove(Long gameId, int x, int y) {
+        if (putSign(gameId, x, y)) {
+            changeCurrentPlayer(gameId);
+        }
+        return determineNextPhaseOfGame(gameId);
+    }
+
+    @Override
+    public String playNextAIMove(Long gameId) {
+        Game game = findById(gameId);
+        String [][]gameBoard = game.getGameBoard();
+        boolean isOk = false;
+        do {
+            isOk = putSign(gameId, r.nextInt(gameBoard.length)+1, r.nextInt(gameBoard.length)+1);
+        }while (!isOk);
+        changeCurrentPlayer(gameId);
+
+        return determineNextPhaseOfGame(gameId);
+
     }
 
     @Override
@@ -292,6 +302,8 @@ public class GameServiceImpl implements GameService {
 
         repeatedGame.setPlayer1(previousGame.getPlayer1());
         repeatedGame.setPlayer2(previousGame.getPlayer2());
+
+        gameRepository.save(repeatedGame);
 
         if (previousGame.getWinner()!=null){
             if(previousGame.getWinner().equals(repeatedGame.getPlayer1())){

@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import pl.wojek11530.tictactoe.commands.GameCommand;
 import pl.wojek11530.tictactoe.domain.Game;
+import pl.wojek11530.tictactoe.domain.SignOfPlayer;
 import pl.wojek11530.tictactoe.services.GameService;
 import pl.wojek11530.tictactoe.services.PlayerService;
 
 import javax.validation.Valid;
+import java.util.EnumSet;
 
 @Slf4j
 @Controller
@@ -40,6 +42,9 @@ public class GameController {
 
         model.addAttribute("playerList", playerService.listAllCommandPlayers() );
 
+        EnumSet<SignOfPlayer> allSigns = EnumSet.allOf( SignOfPlayer.class );
+        model.addAttribute("allSigns", allSigns);
+
         return "game/oneplayer";
     }
 
@@ -50,11 +55,13 @@ public class GameController {
 
         model.addAttribute("playerList", playerService.listAllCommandPlayers() );
 
+
+
         return "game/twoplayers";
     }
 
-    @PostMapping("game")
-    public String saveGame(@Valid @ModelAttribute("game") GameCommand command, BindingResult bindingResult){
+    @PostMapping("gameForOne")
+    public String saveGameOne(@Valid @ModelAttribute("game") GameCommand command, BindingResult bindingResult){
 
         if(bindingResult.hasErrors()){
 
@@ -64,6 +71,37 @@ public class GameController {
 
             return "game/new";
         }
+
+        command.setPlayer2(playerService.getNotRealPLayer());
+
+        if (command.getPlayer1().getSignOfPlayer()==SignOfPlayer.CIRCLE){
+            command.getPlayer2().setSignOfPlayer(SignOfPlayer.CROSS);
+        }else{
+            command.getPlayer2().setSignOfPlayer(SignOfPlayer.CIRCLE);
+        }
+
+
+        GameCommand savedCommand = gameService.saveGameCommand(command);
+
+        gameService.setRandomlyAFirstPlayer(savedCommand.getId());
+
+        return "redirect:/tictactoe/game/" + savedCommand.getId() + "/play";
+    }
+
+
+    @PostMapping("gameForTwo")
+    public String saveGameTwo(@Valid @ModelAttribute("game") GameCommand command, BindingResult bindingResult){
+
+        if(bindingResult.hasErrors()){
+
+            bindingResult.getAllErrors().forEach(objectError -> {
+                log.debug(objectError.toString());
+            });
+            return "game/new";
+        }
+
+        command.getPlayer1().setSignOfPlayer(SignOfPlayer.CROSS);
+        command.getPlayer2().setSignOfPlayer(SignOfPlayer.CIRCLE);
 
         GameCommand savedCommand = gameService.saveGameCommand(command);
 
@@ -75,10 +113,25 @@ public class GameController {
     @GetMapping("/tictactoe/game/{id}/play")
     public String play(@PathVariable String id, Model model){
 
+        Long gameId =new Long(id);
+        model.addAttribute("game", gameService.findById(gameId ));
 
+        if (!gameService.findById(gameId).getCurrentPlayer().isReal()){
+            return "redirect:/tictactoe/game/" + gameId + "/playAI";
+        }else {
+            return "game/play";
+        }
+
+    }
+
+    @GetMapping("/tictactoe/game/{id}/playAI")
+    public String playAI(@PathVariable String id, Model model){
+
+        Long gameId = new Long(id);
+        String nextPage = gameService.playNextAIMove(gameId);
         model.addAttribute("game", gameService.findById( new Long(id)));
 
-        return "game/play";
+        return nextPage;
 
     }
 
@@ -86,27 +139,10 @@ public class GameController {
     public String playNextMove(@PathVariable String id,@PathVariable String xcord,@PathVariable String ycord, Model model){
         Long gameId = new Long(id);
 
-        String whereNext = gameService.playNextMove(gameId,Integer.valueOf(xcord), Integer.valueOf(ycord));
+        String nextPage = gameService.playNextMove(gameId,Integer.valueOf(xcord), Integer.valueOf(ycord));
         model.addAttribute("game", gameService.findById(gameId));
 
-        return whereNext;
-        /*if (gameService.putSign(gameId, Integer.valueOf(xcord), Integer.valueOf(ycord))) {
-            gameService.changeCurrentPlayer(gameId);
-        }
-        model.addAttribute("game", gameService.findById(gameId));
-
-        if (gameService.checkIfTHereIsAWInner(gameId)){
-            return "redirect:/tictactoe/game/" + id + "/win";
-        }
-        else if (gameService.isBoardFull(gameId)){
-            return "redirect:/tictactoe/game/" + id + "/draw";
-        }
-        else {
-            return "game/play";
-        }
-        */
-
-
+        return nextPage;
     }
 
     @GetMapping("/tictactoe/game/{id}/draw")

@@ -37,6 +37,11 @@
                             </div>
                         </div>
 
+                        <div class="table-responsive" th:if="${ #lists.isEmpty(games)}">
+
+                            <p>There is no game played yet.</p>
+                        </div>
+
                         <div class="table-responsive" th:if="${not #lists.isEmpty(games)}">
                             <table class="table table-hover ">
                                 <thead class="thead-inverse">

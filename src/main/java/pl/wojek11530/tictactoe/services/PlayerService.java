@@ -15,4 +15,6 @@ public interface PlayerService {
     Set<Player> getPlayerList();
 
     PlayerCommand savePlayerCommand(PlayerCommand command);
+
+    Player getNotRealPLayer();
 }

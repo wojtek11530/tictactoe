@@ -9,7 +9,7 @@
 	<packaging>jar</packaging>
 
 	<name>tictactoe</name>
-	<description>TicTacToe project with Sprong Framework</description>
+	<description>TicTacToe project with Spring Framework</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -17,6 +17,14 @@
 		<version>2.0.0.BUILD-SNAPSHOT</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+
+	<repositories>
+		<repository>
+			<id>repository.spring.snapshot</id>
+			<name>Spring Snapshot Repository</name>
+			<url>http://repo.spring.io/snapshot</url>
+		</repository>
+	</repositories>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -31,6 +31,7 @@ public class PlayerServiceImpl implements PlayerService {
     public Set<PlayerCommand> listAllCommandPlayers() {
         return StreamSupport.stream(playerRepository.findAll()
                 .spliterator(), false)
+                .filter(player -> player.isReal())
                 .map(playerToPlayerCommand::convert)
                 .collect(Collectors.toSet());
     }
@@ -40,7 +41,8 @@ public class PlayerServiceImpl implements PlayerService {
         Set<Player> playerSet = new HashSet<>();
         playerRepository.findAll().iterator().forEachRemaining(playerSet::add);
 
-        return playerSet;
+        return playerSet.stream()
+                .filter(player -> player.isReal()).collect(Collectors.toSet());
     }
 
     @Override
@@ -53,5 +55,20 @@ public class PlayerServiceImpl implements PlayerService {
         log.debug("Saved GameId:" + savedPLayer.getId());
         return playerToPlayerCommand.convert(savedPLayer);
 
+    }
+
+    @Override
+    public Player getNotRealPLayer() {
+        Set<Player> playerSet = new HashSet<>();
+        playerRepository.findAll().iterator().forEachRemaining(playerSet::add);
+
+        Player AIPlayer = null;
+
+        for (Player player:playerSet){
+            if (!player.isReal()){
+                AIPlayer = player;
+            }
+        }
+        return AIPlayer;
     }
 }

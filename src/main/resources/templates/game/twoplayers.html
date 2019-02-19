@@ -39,28 +39,29 @@
 
                         <div>
                             <div style="margin-top: 70px">
-                                <form th:object="${game}" th:action="@{/game/}" method="post" >
-                                <div class="col-md-6 form-group">
-                                    <label>Player 1 (X):</label>
+                                <form th:object="${game}" th:action="@{/gameForTwo/}" method="post" >
+                                    <div class="col-md-6 form-group">
+                                        <label>Player 1 (X):</label>
 
 
-                                    <select class="form-control" th:field="*{player1}">
-                                        <option th:each="player : ${playerList}"
-                                                th:value="${player.id}"
-                                                th:text="${player.name}">Name Of Player</option>
-                                    </select>
+                                        <select class="form-control" th:field="*{player1}">
+                                            <option th:each="player : ${playerList}"
+                                                    th:value="${player.id}"
+                                                    th:text="${player.name}">Name Of Player</option>
+                                        </select>
 
 
-                                    <label>Player 2 (O):</label>
+                                        <label>Player 2 (O):</label>
 
 
-                                    <select class="form-control" th:field="*{player2}">
-                                        <option th:each="player : ${playerList}"
-                                                th:value="${player.id}"
-                                                th:text="${player.name}">Name Of Player</option>
-                                    </select>
+                                        <select class="form-control" th:field="*{player2}">
+                                            <option th:each="player : ${playerList}"
+                                                    th:value="${player.id}"
+                                                    th:text="${player.name}">Name Of Player</option>
+                                        </select>
 
-                                </div >
+                                    </div >
+
                                     <div class="text-center">
                                         <div class="col-md-6" style="margin-top: 48px">
                                             <button type="submit" class="btn btn-primary btn btn-lg">Start a Game!</button>
