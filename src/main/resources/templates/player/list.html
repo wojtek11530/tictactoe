@@ -33,13 +33,13 @@
                     <div class="col-md-10 col-md-offset-1" >
                         <div class="text-center">
                             <div>
-                                <h1>List of Players</h1>
+                                <h1 th:text="#{wojtek11530.tictactoe.controllers.PlayerController.list.title}">List of Players</h1>
                             </div>
                         </div>
 
                         <div class="table-responsive" th:if="${ #lists.isEmpty(players)}">
 
-                            <p>There is no players. You've got to add them.</p>
+                            <p th:text="#{wojtek11530.tictactoe.controllers.PlayerController.list.no_players}">There is no players. You've got to add them.</p>
                         </div>
 
                         <div class="table-responsive" th:if="${not #lists.isEmpty(players)}">
@@ -47,11 +47,11 @@
                                 <thead class="thead-inverse">
                                 <tr>
                                     <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Number of Games</th>
-                                    <th>Namber of Wins</th>
-                                    <th>Number of Draws</th>
-                                    <th>Number of Defeats</th>
+                                    <th th:text="#{wojtek11530.tictactoe.controllers.PlayerController.list.name}">Name</th>
+                                    <th th:text="#{wojtek11530.tictactoe.controllers.PlayerController.list.games}">Number of Games</th>
+                                    <th th:text="#{wojtek11530.tictactoe.controllers.PlayerController.list.wins}">Namber of Wins</th>
+                                    <th th:text="#{wojtek11530.tictactoe.controllers.PlayerController.list.draws}">Number of Draws</th>
+                                    <th th:text="#{wojtek11530.tictactoe.controllers.PlayerController.list.defeats}">Number of Defeats</th>
                                 </tr>
                                 </thead>
                                 <tr th:remove="all">
@@ -87,12 +87,14 @@
                         <div class="col-md-5">
                             <a class="btn btn-default btn-lg btn-block" href="#"
                                th:href="@{'/tictactoe/'}"
-                               role="button">Return</a>
+                               role="button"
+                               th:text="#{wojtek11530.tictactoe.controllers.PlayerController.list.return}">Return</a>
                         </div>
                         <div class="col-md-5 col-md-offset-2">
                             <a class="btn btn-default btn-lg btn-block" href="#"
                                th:href="@{'/tictactoe/player/new'}"
-                               role="button">Add New Player</a>
+                               role="button"
+                               th:text="#{wojtek11530.tictactoe.controllers.PlayerController.list.add_new}">Add New Player</a>
                         </div>
 
 

@@ -1,16 +1,16 @@
 package pl.wojek11530.tictactoe.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import pl.wojek11530.tictactoe.commands.GameCommand;
 import pl.wojek11530.tictactoe.domain.Game;
 import pl.wojek11530.tictactoe.domain.SignOfPlayer;
+import pl.wojek11530.tictactoe.exceptions.NotFoundException;
 import pl.wojek11530.tictactoe.services.GameService;
 import pl.wojek11530.tictactoe.services.PlayerService;
 
@@ -38,7 +38,9 @@ public class GameController {
     @GetMapping("/tictactoe/game/new/oneplayer")
     public String newGameWithOnePLayer(Model model){
 
-        model.addAttribute("game",new GameCommand());
+        GameCommand command=new GameCommand();
+        command.setPlayer2(playerService.getNotRealPLayer());
+        model.addAttribute("game", command);
 
         model.addAttribute("playerList", playerService.listAllCommandPlayers() );
 
@@ -50,18 +52,13 @@ public class GameController {
 
     @GetMapping("/tictactoe/game/new/twoplayers")
     public String newGameWithTwoPlayers(Model model){
-
         model.addAttribute("game",new GameCommand());
-
         model.addAttribute("playerList", playerService.listAllCommandPlayers() );
-
-
-
         return "game/twoplayers";
     }
 
     @PostMapping("gameForOne")
-    public String saveGameOne(@Valid @ModelAttribute("game") GameCommand command, BindingResult bindingResult){
+    public String saveGameOne(@Valid @ModelAttribute("game") GameCommand command, BindingResult bindingResult, Model model){
 
         if(bindingResult.hasErrors()){
 
@@ -69,10 +66,12 @@ public class GameController {
                 log.debug(objectError.toString());
             });
 
-            return "game/new";
-        }
+            model.addAttribute("playerList", playerService.listAllCommandPlayers() );
 
-        command.setPlayer2(playerService.getNotRealPLayer());
+            EnumSet<SignOfPlayer> allSigns = EnumSet.allOf( SignOfPlayer.class );
+            model.addAttribute("allSigns", allSigns);
+            return "game/oneplayer";
+        }
 
         if (command.getPlayer1().getSignOfPlayer()==SignOfPlayer.CIRCLE){
             command.getPlayer2().setSignOfPlayer(SignOfPlayer.CROSS);
@@ -80,9 +79,7 @@ public class GameController {
             command.getPlayer2().setSignOfPlayer(SignOfPlayer.CIRCLE);
         }
 
-
         GameCommand savedCommand = gameService.saveGameCommand(command);
-
         gameService.setRandomlyAFirstPlayer(savedCommand.getId());
 
         return "redirect:/tictactoe/game/" + savedCommand.getId() + "/play";
@@ -97,14 +94,13 @@ public class GameController {
             bindingResult.getAllErrors().forEach(objectError -> {
                 log.debug(objectError.toString());
             });
-            return "game/new";
+            return "game/twoplayers";
         }
 
         command.getPlayer1().setSignOfPlayer(SignOfPlayer.CROSS);
         command.getPlayer2().setSignOfPlayer(SignOfPlayer.CIRCLE);
 
         GameCommand savedCommand = gameService.saveGameCommand(command);
-
         gameService.setRandomlyAFirstPlayer(savedCommand.getId());
 
         return "redirect:/tictactoe/game/" + savedCommand.getId() + "/play";
@@ -121,7 +117,6 @@ public class GameController {
         }else {
             return "game/play";
         }
-
     }
 
     @GetMapping("/tictactoe/game/{id}/playAI")
@@ -181,6 +176,21 @@ public class GameController {
         model.addAttribute("games", gameService.getGameList());
 
         return "game/list";
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NotFoundException.class)
+    public ModelAndView handleNotFound(Exception exception){
+
+        log.error("Handling not found exception");
+        log.error(exception.getMessage());
+
+        ModelAndView modelAndView = new ModelAndView();
+
+        modelAndView.setViewName("404error");
+        modelAndView.addObject("exception", exception);
+
+        return modelAndView;
     }
 
 }

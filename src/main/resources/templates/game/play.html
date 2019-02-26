@@ -40,7 +40,7 @@
                     <div class="row">
                         <div class="col-md-6" style="margin-top: 12px">
                             <div class="col-md-5 col-md-offset-1">
-                                <label>
+                                <label th:text="#{wojtek11530.tictactoe.controllers.GameController.play.current}">
                                     Current Player
                                 </label>
 
@@ -170,7 +170,7 @@
                             <div class="col-md-6">
 
                                 <div class="col-md-4 col-md-offset-1">
-                                    <label>
+                                    <label th:text="#{wojtek11530.tictactoe.controllers.GameController.play.player1}">
                                         Player 1
                                     </label>
 
@@ -187,7 +187,7 @@
                             <div class="col-md-6">
 
                                 <div class="col-md-4 ">
-                                    <label>
+                                    <label th:text="#{wojtek11530.tictactoe.controllers.GameController.play.player2}">
                                         Player 2
                                     </label>
 
@@ -202,7 +202,8 @@
                                     <div>
                                         <a class="btn btn-primary" href="#"
                                            th:href="@{'/tictactoe/game/'+ ${game.id} + '/delete'}"
-                                           role="button">Close the Game</a>
+                                           role="button"
+                                           th:text="#{wojtek11530.tictactoe.controllers.GameController.play.close}">Close the Game</a>
                                     </div>
                                 </div>
                             </div>

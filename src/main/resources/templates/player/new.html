@@ -33,55 +33,61 @@
                     <div class="col-md-10 col-md-offset-1" >
                         <div class="text-center">
                             <div>
-                                <h1>New Player</h1>
+                                <h1 th:text="#{wojtek11530.tictactoe.controllers.PlayerController.new.title}">New Player</h1>
                             </div>
                         </div>
                         <div>
 
-                            <div>
-                                <div style="margin-top: 70px">
-                                    <form th:object="${player}" th:action="@{/player/}" method="post" >
-                                        <div class="col-md-6 form-group">
+                            <form th:object="${player}" th:action="@{/player/}" method="post" >
 
-                                            <div class="row">
-                                                <div>
-                                                    <label>Player Name:</label>
-                                                    <input type="text" class="form-control" th:field="*{name}" />
+                                <div style="margin-top: 10px" th:style="${#fields.hasErrors('*')}
+                                           ? 'margin-top: 10px;' : 'margin-top: 80px;'">
 
-                                                </div>
+                                    <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                                        <p th:text="#{wojtek11530.tictactoe.controllers.PlayerController.new.error}">Please Correct Errors Below</p>
+                                    </div>
 
 
-                                            </div>
+                                    <input type="hidden" th:field="*{id}"/>
+                                    <div class="col-md-6 form-group" th:class="${#fields.hasErrors('name')}
+                                               ? 'col-md-6 form-group has-error' : 'col-md-6 form-group'">
 
+                                        <div class="row">
+                                            <div>
+                                                <label th:text="#{wojtek11530.tictactoe.controllers.PlayerController.new.name}">Player Name:</label>
+                                                <input type="text" class="form-control" th:field="*{name}" />
 
-
-                                        </div >
-                                        <div class="text-center">
-                                            <div class="col-md-3 col-md-offset-3" style="margin-top: 15px">
-                                                <button type="submit" class="btn btn-primary btn btn-lg">Submit</button>
+                                                <span class="help-block" th:if="${#fields.hasErrors('name')}">
+                                                    <ul>
+                                                        <li th:each="err : ${#fields.errors('name')}" th:text="${err}"/>
+                                                    </ul>
+                                                </span>
                                             </div>
                                         </div>
 
-                                    </form>
-
+                                    </div >
+                                    <div class="text-center">
+                                        <div class="col-md-3 col-md-offset-3" style="margin-top: 15px">
+                                            <button type="submit" class="btn btn-primary btn btn-lg"
+                                                    th:text="#{wojtek11530.tictactoe.controllers.PlayerController.new.submit}">Submit</button>
+                                        </div>
+                                    </div>
 
                                 </div>
 
-                            </div>
-
-
-
+                            </form>
 
                         </div>
 
-
                     </div>
+
                     <row>
                         <div class="col-md-10 col-md-offset-1" style="margin-top: 10px" >
                             <div class="col-md-6 col-md-offset-3">
                                 <a class="btn btn-default  btn-block" href="#"
                                    th:href="@{'/tictactoe/player/list'}"
-                                   role="button">Return</a>
+                                   role="button"
+                                   th:text="#{wojtek11530.tictactoe.controllers.PlayerController.new.return}">Return</a>
                             </div>
                         </div>
 

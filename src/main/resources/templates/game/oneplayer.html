@@ -33,46 +33,76 @@
                     <div class="col-md-10 col-md-offset-1" >
                         <div class="text-center">
                             <div>
-                                <h1>New Game for One Player</h1>
+                                <h1 th:text="#{wojtek11530.tictactoe.controllers.GameController.oneplayer.title}">New Game for One Player</h1>
                             </div>
                         </div>
                         <div>
 
                             <div>
-                                <div style="margin-top: 70px">
-                                    <form th:object="${game}" th:action="@{/gameForOne/}" method="post" >
-                                        <div class="col-md-6 form-group">
+
+                                <form th:object="${game}" th:action="@{/gameForOne/}" method="post" >
+                                    <div style="margin-top: 70px" th:style="${#fields.hasErrors('*')}
+                                           ? 'margin-top: 10px;' : 'margin-top: 80px;'">
+
+                                        <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                                            <p th:text="#{wojtek11530.tictactoe.controllers.GameController.oneplayer.error}">Please Correct Errors Below</p>
+                                        </div>
+
+                                        <input type="hidden" th:field="*{id}"/>
+                                        <input type="hidden" th:field="*{player2}"/>
+
+                                        <div class="col-md-6">
+                                            <div class="form-group" th:class="${#fields.hasErrors('player1')}
+                                                   ? 'form-group has-error' : 'form-group'">
+
+                                                    <label th:text="#{wojtek11530.tictactoe.controllers.GameController.oneplayer.player}">Player:</label>
+
+                                                    <select class="form-control"  th:if="${ #lists.isEmpty(playerList)}">
+                                                        <option value=""> -- </option>
+                                                    </select>
+
+                                                    <select class="form-control" th:field="*{player1}" th:if="${not #lists.isEmpty(playerList)}">
+                                                        <option th:each="player : ${playerList}"
+                                                                th:value="${player.id}"
+                                                                th:text="${player.name}">Name Of Player</option>
+                                                    </select>
+                                                    <span class="help-block" th:if="${#fields.hasErrors('player1')}">
+                                                        <ul>
+                                                            <li th:each="err : ${#fields.errors('player1')}" th:text="${err}"/>
+                                                        </ul>
+                                                    </span>
+                                            </div>
 
 
-                                                <label>Player:</label>
+                                            <div class="form-group" >
 
-
-                                                <select class="form-control" th:field="*{player1}">
-                                                    <option th:each="player : ${playerList}"
-                                                            th:value="${player.id}"
-                                                            th:text="${player.name}">Name Of Player</option>
-                                                </select>
-                                                <select class="form-control" th:field="*{player1.signOfPlayer}">
+                                                <select class="form-control" th:if="${ #lists.isEmpty(playerList)}">
                                                     <option th:each="sign : ${allSigns}"
                                                             th:value="${sign}"
                                                             th:text="${sign}">Sign</option>
                                                 </select>
 
-                                        </div >
-                                        <div class="col-md-6 vertical-center" style="margin-top: 33px">
+                                                <select class="form-control" th:field="*{player1.signOfPlayer}" th:if="${not #lists.isEmpty(playerList)}">
+                                                    <option th:each="sign : ${allSigns}"
+                                                            th:value="${sign}"
+                                                            th:text="${sign}">Sign</option>
+                                                </select>
+
+                                            </div >
+                                        </div>
+                                        <div class="col-md-6 vertical-center" style="margin-top: 40px">
 
                                             <div class="text-center ">
-                                                <button type="submit" class="btn btn-primary btn btn-lg">Start a Game!</button>
+                                                <button type="submit" class="btn btn-primary btn btn-lg"
+                                                        th:text="#{wojtek11530.tictactoe.controllers.GameController.oneplayer.start}">Start a Game!</button>
                                             </div>
                                         </div>
 
-                                    </form>
-                                </div>
+                                    </div>
+                                </form>
+
 
                             </div>
-
-
-
 
                         </div>
                     </div>
@@ -81,7 +111,8 @@
                         <div class="col-md-6 col-md-offset-3">
                             <a class="btn btn-default btn btn-block" href="#"
                                th:href="@{'/tictactoe/game/new'}"
-                               role="button">Return</a>
+                               role="button"
+                               th:text="#{wojtek11530.tictactoe.controllers.GameController.oneplayer.return}">Return</a>
                         </div>
                     </div>
                 </div>

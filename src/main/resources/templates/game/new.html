@@ -33,7 +33,7 @@
                     <div class="col-md-6 col-md-offset-3" >
                         <div class="text-center">
                             <div>
-                                <h1>New Game</h1>
+                                <h1 th:text="#{wojtek11530.tictactoe.controllers.GameController.new.title}">New Game</h1>
                             </div>
 
 
@@ -41,17 +41,20 @@
                                 <div>
                                     <a class="btn btn-default btn-lg btn-block" href="#"
                                        th:href="@{'/tictactoe/game/new/oneplayer'}"
-                                       role="button">One player</a>
+                                       role="button"
+                                       th:text="#{wojtek11530.tictactoe.controllers.GameController.new.one_player}">One player</a>
                                 </div>
                                 <div>
                                     <a class="btn btn-default btn-lg btn-block" href="#"
                                        th:href="@{'/tictactoe/game/new/twoplayers'}"
-                                       role="button">Two players</a>
+                                       role="button"
+                                       th:text="#{wojtek11530.tictactoe.controllers.GameController.new.two_players}">Two players</a>
                                 </div>
                                 <div>
                                     <a class="btn btn-default btn-lg btn-block" href="#"
                                        th:href="@{'/tictactoe/'}"
-                                       role="button">Return</a>
+                                       role="button"
+                                       th:text="#{wojtek11530.tictactoe.controllers.GameController.new.return}">Return</a>
                                 </div>
                             </div>
 

@@ -33,43 +33,73 @@
                     <div class="col-md-10 col-md-offset-1" >
                         <div class="text-center">
                             <div>
-                                <h1>New Game for Two Players</h1>
+                                <h1 th:text="#{wojtek11530.tictactoe.controllers.GameController.twoplayers.title}">New Game for Two Players</h1>
                             </div>
                         </div>
 
                         <div>
-                            <div style="margin-top: 70px">
+
                                 <form th:object="${game}" th:action="@{/gameForTwo/}" method="post" >
-                                    <div class="col-md-6 form-group">
-                                        <label>Player 1 (X):</label>
+                                    <div style="margin-top: 10px" th:style="${#fields.hasErrors('*')}
+                                           ? 'margin-top: 10px;' : 'margin-top: 80px;'">
 
+                                        <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                                            <p th:text="#{wojtek11530.tictactoe.controllers.GameController.twoplayers.error}">Please Correct Errors Below</p>
+                                        </div>
+                                        <input type="hidden" th:field="*{id}"/>
 
-                                        <select class="form-control" th:field="*{player1}">
-                                            <option th:each="player : ${playerList}"
-                                                    th:value="${player.id}"
-                                                    th:text="${player.name}">Name Of Player</option>
-                                        </select>
+                                        <div class="col-md-6">
 
+                                            <div class="form-group" th:class="${#fields.hasErrors('player1')}
+                                                   ? 'form-group has-error' : 'form-group'">
 
-                                        <label>Player 2 (O):</label>
+                                                <label th:text="#{wojtek11530.tictactoe.controllers.GameController.twoplayers.player1}">Player 1 (X):</label>
+                                                <select class="form-control"  th:if="${ #lists.isEmpty(playerList)}">
+                                                    <option value=""> -- </option>
+                                                </select>
 
+                                                <select class="form-control" th:field="*{player1}" th:if="${not #lists.isEmpty(playerList)}">
+                                                    <option th:each="player : ${playerList}"
+                                                            th:value="${player.id}"
+                                                            th:text="${player.name}">Name Of Player</option>
+                                                </select>
+                                                <span class="help-block" th:if="${#fields.hasErrors('player1')}">
+                                                        <ul>
+                                                            <li th:each="err : ${#fields.errors('player1')}" th:text="${err}"/>
+                                                        </ul>
+                                                </span>
+                                            </div>
 
-                                        <select class="form-control" th:field="*{player2}">
-                                            <option th:each="player : ${playerList}"
-                                                    th:value="${player.id}"
-                                                    th:text="${player.name}">Name Of Player</option>
-                                        </select>
+                                            <div class="form-group" th:class="${#fields.hasErrors('player2')}
+                                                   ? 'form-group has-error' : 'form-group'">
 
-                                    </div >
+                                                <label th:text="#{wojtek11530.tictactoe.controllers.GameController.twoplayers.player2}">Player 2 (O):</label>
+                                                <select class="form-control"  th:if="${ #lists.isEmpty(playerList)}">
+                                                    <option value=""> -- </option>
+                                                </select>
+                                                <select class="form-control" th:field="*{player2}" th:if="${not #lists.isEmpty(playerList)}">
+                                                    <option th:each="player : ${playerList}"
+                                                            th:value="${player.id}"
+                                                            th:text="${player.name}">Name Of Player</option>
+                                                </select>
+                                                <span class="help-block" th:if="${#fields.hasErrors('player2')}">
+                                                        <ul>
+                                                            <li th:each="err : ${#fields.errors('player2')}" th:text="${err}"/>
+                                                        </ul>
+                                                </span>
+                                            </div>
 
-                                    <div class="text-center">
-                                        <div class="col-md-6" style="margin-top: 48px">
-                                            <button type="submit" class="btn btn-primary btn btn-lg">Start a Game!</button>
+                                        </div >
+
+                                        <div class="text-center">
+                                            <div class="col-md-6" style="margin-top: 48px">
+                                                <button type="submit" class="btn btn-primary btn btn-lg"
+                                                        th:text="#{wojtek11530.tictactoe.controllers.GameController.twoplayers.start}">Start a Game!</button>
+                                            </div>
                                         </div>
                                     </div>
-
                                 </form>
-                            </div>
+
 
 
 
@@ -83,7 +113,8 @@
                     <div class="col-md-6 col-md-offset-3">
                         <a class="btn btn-default btn btn-block" href="#"
                            th:href="@{'/tictactoe/game/new'}"
-                           role="button">Return</a>
+                           role="button"
+                           th:text="#{wojtek11530.tictactoe.controllers.GameController.twoplayers.return}">Return</a>
                     </div>
                 </div>
 

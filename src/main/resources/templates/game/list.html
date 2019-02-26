@@ -33,13 +33,13 @@
                     <div class="col-md-10 col-md-offset-1" >
                         <div class="text-center">
                             <div>
-                                <h1>List of Games</h1>
+                                <h1 th:text="#{wojtek11530.tictactoe.controllers.GameController.list.title}">List of Games</h1>
                             </div>
                         </div>
 
                         <div class="table-responsive" th:if="${ #lists.isEmpty(games)}">
 
-                            <p>There is no game played yet.</p>
+                            <p th:text="#{wojtek11530.tictactoe.controllers.GameController.list.no_games}">There is no game played yet.</p>
                         </div>
 
                         <div class="table-responsive" th:if="${not #lists.isEmpty(games)}">
@@ -47,9 +47,9 @@
                                 <thead class="thead-inverse">
                                 <tr>
                                     <th>ID</th>
-                                    <th>Player 1</th>
-                                    <th>Player 2</th>
-                                    <th>Winner</th>
+                                    <th th:text="#{wojtek11530.tictactoe.controllers.GameController.list.player1}">Player 1</th>
+                                    <th th:text="#{wojtek11530.tictactoe.controllers.GameController.list.player2}">Player 2</th>
+                                    <th th:text="#{wojtek11530.tictactoe.controllers.GameController.list.winner}">Winner</th>
 
                                 </tr>
                                 </thead>
@@ -79,7 +79,8 @@
                         <div class="col-md-5">
                             <a class="btn btn-default btn-lg btn-block" href="#"
                                th:href="@{'/tictactoe/'}"
-                               role="button">Return</a>
+                               role="button"
+                               th:text="#{wojtek11530.tictactoe.controllers.GameController.list.return}">Return</a>
                         </div>
 
 

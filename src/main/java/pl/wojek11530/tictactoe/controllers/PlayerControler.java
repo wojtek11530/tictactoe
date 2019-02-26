@@ -52,9 +52,7 @@ public class PlayerControler {
             return "player/new";
         }
 
-
         PlayerCommand savedCommand = playerService.savePlayerCommand(command);
-
         return "redirect:/tictactoe/player/list";
     }
 }
