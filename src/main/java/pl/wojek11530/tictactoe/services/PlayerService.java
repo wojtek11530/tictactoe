@@ -10,7 +10,9 @@ import java.util.Set;
 
 public interface PlayerService {
 
-    Set<PlayerCommand> listAllCommandPlayers();
+    Set<PlayerCommand> listAllCommandRealPlayers();
+
+    Set<PlayerCommand> listAllCommandAIPlayers();
 
     Set<Player> getPlayerList();
 

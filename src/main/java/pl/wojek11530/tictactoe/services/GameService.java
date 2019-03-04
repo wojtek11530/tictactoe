@@ -7,7 +7,6 @@ import pl.wojek11530.tictactoe.domain.Player;
 import java.util.Set;
 
 public interface GameService {
-    boolean putSign(Long id, int x, int y);
 
     GameCommand saveGameCommand(GameCommand command);
 
@@ -17,22 +16,9 @@ public interface GameService {
 
     void setRandomlyAFirstPlayer(Long gameId);
 
-    void changeCurrentPlayer(Long gameId);
-
-    boolean isBoardFull(Long gameId);
-
-    boolean checkIfTHereIsAWInner(Long gameId);
-
-    Player checkIfAnyRowHasTheSameSigns(Long gameId);
-
-    Player checkIfAnyColHasTheSameSigns(Long gameId);
-
-    Player checkIfAnyDiagonalHasTheSameSigns(Long gameId);
-
     String playNextMove(Long gameId, int x, int y);
 
     Game repeatAGame(Long gameId);
-
 
     void deleteById(Long gameId);
 
@@ -40,5 +26,5 @@ public interface GameService {
 
     String playNextAIMove(Long gameId);
 
-    String determineNextPhaseOfGame(Long gameId);
+
 }

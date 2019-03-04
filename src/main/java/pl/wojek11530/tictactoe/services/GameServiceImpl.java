@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.wojek11530.tictactoe.commands.GameCommand;
 import pl.wojek11530.tictactoe.converters.GameCommandToGame;
 import pl.wojek11530.tictactoe.converters.GameToGameCommand;
+import pl.wojek11530.tictactoe.domain.Difficulty;
 import pl.wojek11530.tictactoe.domain.Game;
 import pl.wojek11530.tictactoe.domain.Player;
 import pl.wojek11530.tictactoe.exceptions.NotFoundException;
@@ -25,6 +26,7 @@ public class GameServiceImpl implements GameService {
     private final GameCommandToGame gameCommandToGame;
     private final GameToGameCommand gameToGameCommand;
     private final PlayerRepository playerRepository;
+
 
     private final Random r = new Random();
 
@@ -46,20 +48,7 @@ public class GameServiceImpl implements GameService {
         return gameOptional.get();
     }
 
-    @Override
-    public boolean putSign(Long id, int x, int y) {
-        Game game = findById(id);
 
-        if(!game.getGameBoard()[x - 1][y - 1].equals(Game.DEFAULT_BOARD_CHARACTER)) {
-            return false;
-        }
-        else{
-            findById(id).getGameBoard()[x-1][y-1] =  findById(id).getCurrentPlayer().getSignOfPlayer().getSign();
-            gameRepository.save(game);
-        }
-
-        return true;
-    }
 
     @Override
     @Transactional
@@ -91,8 +80,8 @@ public class GameServiceImpl implements GameService {
         gameRepository.save(game);
     }
 
-    @Override
-    public void changeCurrentPlayer(Long gameId) {
+
+    private void changeCurrentPlayer(Long gameId) {
         Game game = findById(gameId);
         if(game.getCurrentPlayer().equals(game.getPlayer1())){
             game.setCurrentPlayer(game.getPlayer2());
@@ -103,74 +92,76 @@ public class GameServiceImpl implements GameService {
 
     }
 
-    @Override
-    public boolean isBoardFull(Long gameId) {
-        Game game = findById(gameId);
 
+    private boolean draw(Long gameId) {
+        Game game = findById(gameId);
         String [][] gameBoard = game.getGameBoard();
+
+        if (!drawAux(gameBoard)) return false;
+
+        game.getPlayer1().setNumberOfDraws(game.getPlayer1().getNumberOfDraws() + 1);
+        game.getPlayer1().setNumberOfGames(game.getPlayer1().getNumberOfGames() + 1);
+
+        game.getPlayer2().setNumberOfDraws(game.getPlayer2().getNumberOfDraws() + 1);
+        game.getPlayer2().setNumberOfGames(game.getPlayer2().getNumberOfGames() + 1);
+
+        gameRepository.save(game);
+
+        playerRepository.save(game.getPlayer1());
+        playerRepository.save(game.getPlayer2());
+
+        return true;
+    }
+
+    private boolean drawAux(String[][] gameBoard) {
+        boolean draw = true;
         for (int i = 0; i < gameBoard.length; i++) {
             for (int j = 0; j < gameBoard[i].length; j++) {
                 if (gameBoard[i][j].equals(Game.DEFAULT_BOARD_CHARACTER)) {
-                    return false;
+                    draw = false;
                 }
             }
         }
-
-        game.getPlayer1().setNumberOfDraws(game.getPlayer1().getNumberOfDraws()+1);
-        game.getPlayer1().setNumberOfGames(game.getPlayer1().getNumberOfGames()+1);
-
-        game.getPlayer2().setNumberOfDraws(game.getPlayer2().getNumberOfDraws()+1);
-        game.getPlayer2().setNumberOfGames(game.getPlayer2().getNumberOfGames()+1);
-
-        gameRepository.save(game);
-
-        playerRepository.save(game.getPlayer1());
-        playerRepository.save(game.getPlayer2());
-
-        return true;
+        return draw;
     }
 
-    @Override
-    public boolean checkIfTHereIsAWInner(Long gameId) {
+
+    private boolean checkIfThereIsAWInner(Long gameId) {
         Game game = findById(gameId);
-        Player winner;
+        boolean winning = winning(game.getGameBoard(), game.getCurrentPlayer());
 
-        if (checkIfAnyRowHasTheSameSigns(gameId)!=null){
-            winner = checkIfAnyRowHasTheSameSigns(gameId);
-        } else if (checkIfAnyColHasTheSameSigns(gameId)!=null){
-            winner = checkIfAnyColHasTheSameSigns(gameId);
 
-        } else if (checkIfAnyDiagonalHasTheSameSigns(gameId)!=null){
-            winner = checkIfAnyDiagonalHasTheSameSigns(gameId);
-        }else {
-            return false;
-        }
+        Player winner = game.getCurrentPlayer();
         game.setWinner(winner);
 
-        game.getPlayer1().setNumberOfGames(game.getPlayer1().getNumberOfGames()+1);
-        game.getPlayer2().setNumberOfGames(game.getPlayer2().getNumberOfGames()+1);
+        game.getPlayer1().setNumberOfGames(game.getPlayer1().getNumberOfGames() + 1);
+        game.getPlayer2().setNumberOfGames(game.getPlayer2().getNumberOfGames() + 1);
 
+        if (winner.equals(game.getPlayer1())) {
+            game.getPlayer1().setNumberOfWins(game.getPlayer1().getNumberOfWins() + 1);
+            game.getPlayer2().setNumberOfDefeats(game.getPlayer2().getNumberOfDefeats() + 1);
 
-        if(winner.equals(game.getPlayer1())){
-            game.getPlayer1().setNumberOfWins(game.getPlayer1().getNumberOfWins()+1);
-            game.getPlayer2().setNumberOfDefeats(game.getPlayer2().getNumberOfDefeats()+1);
-
-        }else {
-            game.getPlayer2().setNumberOfWins(game.getPlayer2().getNumberOfWins()+1);
-            game.getPlayer1().setNumberOfDefeats(game.getPlayer1().getNumberOfDefeats()+1);
+        } else {
+            game.getPlayer2().setNumberOfWins(game.getPlayer2().getNumberOfWins() + 1);
+            game.getPlayer1().setNumberOfDefeats(game.getPlayer1().getNumberOfDefeats() + 1);
         }
         gameRepository.save(game);
         playerRepository.save(game.getPlayer1());
         playerRepository.save(game.getPlayer2());
-        return true;
+
+        return winning;
 
     }
 
-    @Override
-    public Player checkIfAnyRowHasTheSameSigns(Long gameId) {
-        Player player = null;
-        Game game = findById(gameId);
-        String [][]gameBoard = game.getGameBoard();
+    private boolean winning(String[][] gameBoard, Player currentPlayer) {
+
+        return (checkIfAnyRowHasTheSameSigns(gameBoard, currentPlayer) ||
+                checkIfAnyColHasTheSameSigns(gameBoard, currentPlayer) ) ||
+                checkIfAnyDiagonalHasTheSameSigns(gameBoard, currentPlayer);
+    }
+
+    private boolean checkIfAnyRowHasTheSameSigns(String[][] gameBoard, Player currentPlayer) {
+        String currentSign = currentPlayer.getSignOfPlayer().getSign();
 
         for (int i = 0; i < gameBoard.length; i++) {
             String [] row = new String[gameBoard.length];
@@ -187,21 +178,16 @@ public class GameServiceImpl implements GameService {
                 }
             }
 
-            if ((!row[0].equals(Game.DEFAULT_BOARD_CHARACTER)) && hasTheRowTheSameSigns) {
-                if (row[0].equals(game.getPlayer1().getSignOfPlayer().getSign())) {
-                    player =  game.getPlayer1();
-                } else {
-                    player =  game.getPlayer2();
-                }
+            if (row[0].equals(currentSign) && hasTheRowTheSameSigns) {
+                return true;
             }
         }
-        return player;
+        return false;
     }
 
-    @Override
-    public Player checkIfAnyColHasTheSameSigns(Long gameId) {
-        Game game = findById(gameId);
-        String [][]gameBoard = game.getGameBoard();
+    private boolean checkIfAnyColHasTheSameSigns(String[][] gameBoard, Player currentPlayer) {
+
+        String currentSign = currentPlayer.getSignOfPlayer().getSign();
 
         for (int i = 0; i < gameBoard[0].length; i++) {
             String [] col = new String[gameBoard.length];
@@ -218,22 +204,15 @@ public class GameServiceImpl implements GameService {
                 }
             }
 
-            if ((!col[0].equals(Game.DEFAULT_BOARD_CHARACTER)) && hasColTheSameSigns) {
-                if (col[0].equals(game.getPlayer1().getSignOfPlayer().getSign())) {
-                    return game.getPlayer1();
-                } else {
-                    return game.getPlayer2();
-                }
+            if (col[0].equals(currentSign) && hasColTheSameSigns) {
+                return true;
             }
         }
-        return null;
-
+        return false;
     }
 
-    @Override
-    public Player checkIfAnyDiagonalHasTheSameSigns(Long gameId) {
-        Game game = findById(gameId);
-        String [][]gameBoard = game.getGameBoard();
+    private boolean checkIfAnyDiagonalHasTheSameSigns(String[][] gameBoard, Player currentPlayer) {
+        String currentSign = currentPlayer.getSignOfPlayer().getSign();
 
         boolean hasDiagonalOneTheSameSigns = true;
         boolean hasDiagonalTwoTheSameSigns = true;
@@ -249,50 +228,276 @@ public class GameServiceImpl implements GameService {
                 hasDiagonalTwoTheSameSigns=false;
             }
         }
-        if ((!gameBoard[0][0].equals(Game.DEFAULT_BOARD_CHARACTER) && hasDiagonalOneTheSameSigns) ||
-                (!gameBoard[0][2].equals(Game.DEFAULT_BOARD_CHARACTER) && hasDiagonalTwoTheSameSigns)) {
-            if (gameBoard[1][1].equals(game.getPlayer1().getSignOfPlayer().getSign())) {
-                return game.getPlayer1();
-            } else {
-                return game.getPlayer1();
-            }
-        } else {
-            return null;
-        }
+
+        return (gameBoard[0][0].equals(currentSign) && hasDiagonalOneTheSameSigns) ||
+                    (gameBoard[0][2].equals(currentSign) && hasDiagonalTwoTheSameSigns);
+
     }
 
-    public String determineNextPhaseOfGame(Long gameId) {
-        if (checkIfTHereIsAWInner(gameId)){
+    private String determineNextPhaseOfGame(Long gameId, boolean changePlayer) {
+        if (checkIfThereIsAWInner(gameId)){
             return "redirect:/tictactoe/game/" + gameId + "/win";
         }
-        else if (isBoardFull(gameId)){
+        else if (draw(gameId)){
             return "redirect:/tictactoe/game/" + gameId + "/draw";
         }
         else {
+            if (changePlayer){
+                changeCurrentPlayer(gameId);
+            }
             return "redirect:/tictactoe/game/" + gameId + "/play";
         }
     }
 
+    private boolean putSign(Long id, int x, int y) {
+        Game game = findById(id);
+
+        if (putSignAux(x, y, game.getGameBoard(), game.getCurrentPlayer())){
+            gameRepository.save(game);
+            return true;
+        }else {
+            return false;
+        }
+    }
+
+    private boolean putSignAux(int x, int y, String[][] gameBoard, Player player) {
+        if(!gameBoard[x - 1][y - 1].equals(Game.DEFAULT_BOARD_CHARACTER)) {
+            return false;
+        }
+        else{
+            gameBoard[x-1][y-1] = player.getSignOfPlayer().getSign();
+        }
+        return true;
+    }
+
+    private void putDefaultSign(int x, int y, String[][] gameBoard) {
+        gameBoard[x-1][y-1] =  Game.DEFAULT_BOARD_CHARACTER;
+    }
+
     @Override
     public String playNextMove(Long gameId, int x, int y) {
+        boolean changePlayer = false;
         if (putSign(gameId, x, y)) {
-            changeCurrentPlayer(gameId);
+            changePlayer = true;
         }
-        return determineNextPhaseOfGame(gameId);
+        return determineNextPhaseOfGame(gameId, changePlayer);
     }
 
     @Override
     public String playNextAIMove(Long gameId) {
+
+        Difficulty diff = findById(gameId).getCurrentPlayer().getDifficulty();
+        switch (diff) {
+            case EASY:
+                randomAIMove(gameId);
+                break;
+
+            case MEDIUM:
+                mediumAIMove(gameId);
+                break;
+            case DIFFICULT:
+                difficultAIMove(gameId);
+                break;
+            case IMPOSSIBLE:
+                minmaxAIMove(gameId);
+                break;
+
+        }
+        return determineNextPhaseOfGame(gameId, true);
+
+    }
+
+    private void mediumAIMove(Long gameId) {
+        if (r.nextDouble()<0.8){
+            difficultAIMove(gameId);
+        }else{
+            randomAIMove(gameId);
+        }
+    }
+
+
+    private void difficultAIMove(Long gameId) {
         Game game = findById(gameId);
         String [][]gameBoard = game.getGameBoard();
-        boolean isOk = false;
+
+        String currentSign = game.getCurrentPlayer().getSignOfPlayer().getSign();
+        String opponentSign = game.getCurrentPlayer().equals(game.getPlayer1()) ?
+                game.getPlayer2().getSignOfPlayer().getSign():game.getPlayer1().getSignOfPlayer().getSign();
+
+        int x = 0;
+        int y = 0;
+
+        int[] corr = new int[2];
+        corr[0]=x;
+        corr[1]=y;
+
+        if (findBestSpot(gameBoard, currentSign, corr)){
+            putSign(gameId, corr[0]+1, corr[1]+1);
+        }else if (findBestSpot(gameBoard, opponentSign, corr)) {
+            putSign(gameId, corr[0]+1, corr[1]+1);
+        }else{
+            randomAIMove(gameId);
+        }
+    }
+
+    private boolean findBestSpot(String[][] gameBoard, String sign, int corr[]) {
+        boolean isSpotDetermined = false;
+
+        for (int i = 0; i < gameBoard.length; i++) {
+            if (!isSpotDetermined) {
+                String[] row = new String[gameBoard.length];
+                String[] col = new String[gameBoard.length];
+
+                for (int j = 0; j < gameBoard[i].length; j++) {
+                    row[j] = gameBoard[j][i];
+                    col[j] = gameBoard[i][j];
+                }
+                if (row[0].equals(sign) && row[1].equals(sign) && row[2].equals(Game.DEFAULT_BOARD_CHARACTER)) {
+                    isSpotDetermined = true;
+                    corr[0] = 2;
+                    corr[1] = i;
+                } else if (row[0].equals(sign) && row[1].equals(Game.DEFAULT_BOARD_CHARACTER) && row[2].equals(sign)) {
+                    isSpotDetermined = true;
+                    corr[0] = 1;
+                    corr[1] = i;
+                } else if (row[0].equals(Game.DEFAULT_BOARD_CHARACTER) && row[1].equals(sign) && row[2].equals(sign)) {
+                    isSpotDetermined = true;
+                    corr[0] = 0;
+                    corr[1] = i;
+                } else if (col[0].equals(sign) && col[1].equals(sign) && col[2].equals(Game.DEFAULT_BOARD_CHARACTER)) {
+                    isSpotDetermined = true;
+                    corr[0] = i;
+                    corr[1] = 2;
+                } else if (col[0].equals(sign) && col[1].equals(Game.DEFAULT_BOARD_CHARACTER) && col[2].equals(sign)) {
+                    isSpotDetermined = true;
+                    corr[0] = i;
+                    corr[1] = 1;
+                } else if (col[0].equals(Game.DEFAULT_BOARD_CHARACTER) && col[1].equals(sign) && col[2].equals(sign)) {
+                    isSpotDetermined = true;
+                    corr[0] = i;
+                    corr[1] = 0;
+                }
+            }
+        }
+        if (!isSpotDetermined) {
+            if (gameBoard[0][0].equals(sign) && gameBoard[1][1].equals(sign) && gameBoard[2][2].equals(Game.DEFAULT_BOARD_CHARACTER)) {
+                isSpotDetermined = true;
+                corr[0] = 2;
+                corr[1] = 2;
+            } else if (gameBoard[0][0].equals(sign) && gameBoard[1][1].equals(Game.DEFAULT_BOARD_CHARACTER) && gameBoard[2][2].equals(sign)) {
+                isSpotDetermined = true;
+                corr[0] = 1;
+                corr[1] = 1;
+            } else if (gameBoard[0][0].equals(Game.DEFAULT_BOARD_CHARACTER) && gameBoard[1][1].equals(sign) && gameBoard[2][2].equals(sign)) {
+                isSpotDetermined = true;
+                corr[0] = 0;
+                corr[1] = 0;
+            } else if (gameBoard[0][2].equals(sign) && gameBoard[1][1].equals(sign) && gameBoard[2][0].equals(Game.DEFAULT_BOARD_CHARACTER)) {
+                isSpotDetermined = true;
+                corr[0] = 2;
+                corr[1] = 0;
+            } else if (gameBoard[0][2].equals(sign) && gameBoard[1][1].equals(Game.DEFAULT_BOARD_CHARACTER) && gameBoard[2][0].equals(sign)) {
+                isSpotDetermined = true;
+                corr[0] = 1;
+                corr[1] = 1;
+            } else if (gameBoard[0][2].equals(Game.DEFAULT_BOARD_CHARACTER) && gameBoard[1][1].equals(sign) && gameBoard[2][0].equals(sign)) {
+                isSpotDetermined = true;
+                corr[0] = 0;
+                corr[1] = 2;
+            }
+        }
+        return isSpotDetermined;
+    }
+
+    private void randomAIMove(Long gameId) {
+        Game game = findById(gameId);
+        String [][]gameBoard = game.getGameBoard();
+        boolean isOk;
         do {
             isOk = putSign(gameId, r.nextInt(gameBoard.length)+1, r.nextInt(gameBoard.length)+1);
         }while (!isOk);
-        changeCurrentPlayer(gameId);
+    }
 
-        return determineNextPhaseOfGame(gameId);
+    private void minmaxAIMove(Long gameId){
+        Game game = findById(gameId);
+        String [][]gameBoard = game.getGameBoard();
 
+        Player playerAI = game.getCurrentPlayer();
+        Player playerHuman = game.getPlayer1().equals(playerAI) ? game.getPlayer2(): game.getPlayer1();
+        int minimaxResult;
+        int xCorrMove=0;
+        int yCorrMove=0;
+        int bestResult = -1000;
+
+        for(int i = 1; i <= 3; i++){
+            for(int j = 1; j <= 3; j++){
+
+                if(gameBoard[i-1][j-1].equals(Game.DEFAULT_BOARD_CHARACTER))
+                {
+                    putSignAux(i, j, gameBoard, playerAI);
+                    minimaxResult = minimax(gameBoard, playerAI, playerHuman);
+                    putDefaultSign(i, j, gameBoard);
+
+                    if(minimaxResult > bestResult)
+                    {
+                        bestResult = minimaxResult;
+                        xCorrMove = i;
+                        yCorrMove = j;
+                    }
+                }
+            }
+        }
+
+        putSign(gameId, xCorrMove, yCorrMove);
+
+    }
+
+
+    private int minimax(String[][] gameBoard, Player currentPlayer, Player secondPlayer)  {
+
+        if(winning(gameBoard,currentPlayer)) {
+            if (currentPlayer.isReal()){
+                return -10;
+            }else{
+                return 10;
+            }
+        }
+        else if (drawAux(gameBoard)){
+            return 0;
+        }
+
+        else {
+            int minmaxResult;
+            int bestResult;
+
+            Player temp = secondPlayer;
+            secondPlayer = currentPlayer;
+            currentPlayer = temp;
+
+            if (currentPlayer.isReal()){ //case when human
+                bestResult = 1000 ;
+            }else{                        //case when AI
+                bestResult = -1000;
+            }
+
+            for (int i = 1; i <= 3; i++) {
+                for (int j = 1; j <= 3; j++) {
+
+                    if (gameBoard[i - 1][j - 1].equals(Game.DEFAULT_BOARD_CHARACTER)) {
+
+                        putSignAux(i, j, gameBoard, currentPlayer);
+                        minmaxResult = minimax(gameBoard, currentPlayer, secondPlayer);
+                        putDefaultSign(i, j, gameBoard);
+
+                        if ( (!currentPlayer.isReal() && minmaxResult > bestResult) ||
+                                (currentPlayer.isReal() && minmaxResult < bestResult) ) {
+                            bestResult = minmaxResult;
+                        }
+                    }
+                }
+            }
+            return bestResult;
+        }
     }
 
     @Override

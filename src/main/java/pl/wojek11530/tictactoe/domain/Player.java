@@ -17,6 +17,7 @@ public class Player{
     @Enumerated(value = EnumType.STRING)
     private SignOfPlayer signOfPlayer;
     private boolean isReal;
+    private Difficulty difficulty;
 
     @OneToMany
     @JoinTable(name = "player_games",
@@ -77,6 +78,14 @@ public class Player{
 
     public boolean isReal() {
         return isReal;
+    }
+
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
     }
 
     public Set<Game> getGameSet() {

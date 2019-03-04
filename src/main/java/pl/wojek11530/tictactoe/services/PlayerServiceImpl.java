@@ -28,10 +28,19 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public Set<PlayerCommand> listAllCommandPlayers() {
+    public Set<PlayerCommand> listAllCommandRealPlayers() {
         return StreamSupport.stream(playerRepository.findAll()
                 .spliterator(), false)
                 .filter(player -> player.isReal())
+                .map(playerToPlayerCommand::convert)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<PlayerCommand> listAllCommandAIPlayers() {
+        return StreamSupport.stream(playerRepository.findAll()
+                .spliterator(), false)
+                .filter(player -> !player.isReal())
                 .map(playerToPlayerCommand::convert)
                 .collect(Collectors.toSet());
     }

@@ -8,6 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import pl.wojek11530.tictactoe.commands.GameCommand;
+import pl.wojek11530.tictactoe.domain.Difficulty;
 import pl.wojek11530.tictactoe.domain.Game;
 import pl.wojek11530.tictactoe.domain.SignOfPlayer;
 import pl.wojek11530.tictactoe.exceptions.NotFoundException;
@@ -39,13 +40,15 @@ public class GameController {
     public String newGameWithOnePLayer(Model model){
 
         GameCommand command=new GameCommand();
-        command.setPlayer2(playerService.getNotRealPLayer());
+        //command.setPlayer2(playerService.getNotRealPLayer());
         model.addAttribute("game", command);
 
-        model.addAttribute("playerList", playerService.listAllCommandPlayers() );
+        model.addAttribute("playerList", playerService.listAllCommandRealPlayers() );
+        model.addAttribute("aiplayerList", playerService.listAllCommandAIPlayers() );
 
         EnumSet<SignOfPlayer> allSigns = EnumSet.allOf( SignOfPlayer.class );
         model.addAttribute("allSigns", allSigns);
+
 
         return "game/oneplayer";
     }
@@ -53,7 +56,7 @@ public class GameController {
     @GetMapping("/tictactoe/game/new/twoplayers")
     public String newGameWithTwoPlayers(Model model){
         model.addAttribute("game",new GameCommand());
-        model.addAttribute("playerList", playerService.listAllCommandPlayers() );
+        model.addAttribute("playerList", playerService.listAllCommandRealPlayers() );
         return "game/twoplayers";
     }
 
@@ -66,7 +69,8 @@ public class GameController {
                 log.debug(objectError.toString());
             });
 
-            model.addAttribute("playerList", playerService.listAllCommandPlayers() );
+            model.addAttribute("playerList", playerService.listAllCommandRealPlayers() );
+            model.addAttribute("aiplayerList", playerService.listAllCommandAIPlayers() );
 
             EnumSet<SignOfPlayer> allSigns = EnumSet.allOf( SignOfPlayer.class );
             model.addAttribute("allSigns", allSigns);
@@ -152,7 +156,6 @@ public class GameController {
         return "game/win";
     }
 
-
     @GetMapping("/tictactoe/game/{id}/repeat")
     public String repeatAGame(@PathVariable String id, Model model){
         Game newGame = gameService.repeatAGame(new Long(id));
@@ -162,19 +165,15 @@ public class GameController {
 
     @GetMapping("tictactoe/game/{id}/delete")
     public String deleteById(@PathVariable String id){
-
         log.debug("Deleting id: " + id);
-
         gameService.deleteById(Long.valueOf(id));
         return "redirect:/tictactoe";
     }
 
     @GetMapping("/tictactoe/game/list")
     public String getListOfGamesPage(Model model){
-
         log.debug("Getting Page with List of Games");
         model.addAttribute("games", gameService.getGameList());
-
         return "game/list";
     }
 

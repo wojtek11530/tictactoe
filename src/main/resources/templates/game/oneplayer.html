@@ -49,7 +49,7 @@
                                         </div>
 
                                         <input type="hidden" th:field="*{id}"/>
-                                        <input type="hidden" th:field="*{player2}"/>
+
 
                                         <div class="col-md-6">
                                             <div class="form-group" th:class="${#fields.hasErrors('player1')}
@@ -73,7 +73,6 @@
                                                     </span>
                                             </div>
 
-
                                             <div class="form-group" >
 
                                                 <select class="form-control" th:if="${ #lists.isEmpty(playerList)}">
@@ -89,8 +88,27 @@
                                                 </select>
 
                                             </div >
+
+                                            <div class="form-group" th:class="${#fields.hasErrors('player2')}
+                                                   ? 'form-group has-error' : 'form-group'">
+
+                                                <label th:text="#{wojtek11530.tictactoe.controllers.GameController.oneplayer.aiplayer}">Computer:</label>
+                                                <select class="form-control"  th:if="${ #lists.isEmpty(aiplayerList)}">
+                                                    <option value=""> -- </option>
+                                                </select>
+                                                <select class="form-control" th:field="*{player2}" th:if="${not #lists.isEmpty(aiplayerList)}">
+                                                    <option th:each="player : ${aiplayerList}"
+                                                            th:value="${player.id}"
+                                                            th:text="${player.name}">Name Of Player</option>
+                                                </select>
+                                                <span class="help-block" th:if="${#fields.hasErrors('player2')}">
+                                                        <ul>
+                                                            <li th:each="err : ${#fields.errors('player2')}" th:text="${err}"/>
+                                                        </ul>
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div class="col-md-6 vertical-center" style="margin-top: 40px">
+                                        <div class="col-md-6 vertical-center" style="margin-top: 70px">
 
                                             <div class="text-center ">
                                                 <button type="submit" class="btn btn-primary btn btn-lg"
